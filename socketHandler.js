@@ -1,12 +1,13 @@
 const utils = require('./utils')
-const { rooms: Rooms } = require('./models')
+const { rooms: Rooms, participants: Participants } = require('./models')
+const { v4: uudiV4 } = require('uuid')
 
 function init(io) {
     global.io = io
     io.on('connection', (socket) => {
         //console.log(`Socket with ${socket.id} joined`)
         socket.on('join-room', async (data, callback) => {
-            const { room_code, username } = data
+            const { room_code, username, public_key } = data
             socket.nickname = username
             const room = await Rooms.findOne({
                 where: {
@@ -20,6 +21,13 @@ function init(io) {
                 })
             }
             else {
+                await Participants.create({
+                    socket_id: socket.id,
+                    room_code,
+                    username,
+                    public_key,
+                    ip_address: socket.handshake.address
+                })
                 socket.join(`${room_code}`)
                 callback({
                     status: 'success',
@@ -47,6 +55,11 @@ function init(io) {
                     }
                 }
             }
+            await Participants.destroy({
+                where: {
+                    socket_id: socket.id
+                }
+            })
         })
     })
 }
