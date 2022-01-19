@@ -28,25 +28,45 @@ function init(io) {
                     public_key,
                     ip_address: socket.handshake.address
                 })
-                socket.join(`${room_code}`)
+                socket.join(room_code)
+                const participants = await getClients(io, room_code, socket)
                 callback({
                     status: 'success',
-                    participants: io.sockets.adapter.rooms.get(`${room_code}`).size
+                    participants,
+                    size: io.sockets.adapter.rooms.get(room_code)?.size
                 })
                 socket.in(`${room_code}`).emit('room-joined', {
                     username,
-                    participants: io.sockets.adapter.rooms.get(`${room_code}`).size
+                    participants,
+                    size: io.sockets.adapter.rooms.get(room_code)?.size
                 })
             }
+        })
+        socket.on('private-message', ({ to, encrypted }) => {
+            io.to(to).emit('new-private-message', {
+                encrypted,
+                from: socket.nickname,
+                timestamp: new Date().getTime()
+            })
+        })
+        socket.on('typing', ({ room_code }) => {
+            socket.broadcast.to(room_code).emit('user-typing', {
+                username: socket.nickname
+            })
+        })
+        socket.on('dismiss-typing', ({ room_code }) => {
+            socket.broadcast.to(room_code).emit('user-dismiss-typing', null)
         })
         socket.on("disconnecting", async (reason) => {
             for (const room of socket.rooms) {
                 if (room !== socket.id) {
+                    const participants = await getClients(io, room, socket)
                     socket.to(room).emit("user-disconnected", {
                         username: socket.nickname,
-                        participants: io.sockets.adapter.rooms.get(`${room}`).size - 1
+                        participants,
+                        size: io.sockets.adapter.rooms.get(room)?.size - 1
                     })
-                    if (io.sockets.adapter.rooms.get(`${room}`).size - 1 === 0) {
+                    if (io.sockets.adapter.rooms.get(`${room}`)?.size - 1 === 0) {
                         await Rooms.destroy({
                             where: {
                                 room_code: room
@@ -61,6 +81,34 @@ function init(io) {
                 }
             })
         })
+    })
+}
+
+function getClients(io, room_code, socket) {
+    return new Promise(async (resolve, reject) => {
+        try {
+            const clients = io.sockets.adapter.rooms.get(room_code);
+            let sockets = []
+
+            for await (const clientId of clients) {
+                //if (clientId !== socket.id) {
+                const { public_key } = await Participants.findOne({
+                    where: {
+                        socket_id: clientId
+                    },
+                    attributes: ['public_key']
+                })
+                sockets.push({
+                    socket_id: clientId,
+                    public_key
+                })
+                //}
+            }
+            resolve(sockets)
+        }
+        catch (err) {
+            reject(err)
+        }
     })
 }
 
