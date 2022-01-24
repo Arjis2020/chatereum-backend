@@ -49,6 +49,14 @@ function init(io) {
                 timestamp: new Date().getTime()
             })
         })
+        socket.on('private-file', ({ to, encrypted, metadata }) => {
+            io.to(to).emit('new-private-file', {
+                encrypted,
+                metadata,
+                from: socket.nickname,
+                timestamp: new Date().getTime()
+            })
+        })
         socket.on('typing', ({ room_code }) => {
             socket.broadcast.to(room_code).emit('user-typing', {
                 username: socket.nickname

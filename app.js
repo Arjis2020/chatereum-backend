@@ -31,7 +31,8 @@ db.init((err) => {
     const io = require('socket.io')(server, {
         cors: {
             origins: '*'
-        }
+        },
+        maxHttpBufferSize: 1.024e9
     })
 
     const socket = require('./socketHandler')
