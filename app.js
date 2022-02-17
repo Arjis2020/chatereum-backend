@@ -17,8 +17,10 @@ app.use(express.json())
 //routes
 const initRoute = require('./routes/init')
 const roomRoute = require('./routes/room')
+const ratingRoute = require('./routes/rating')
 app.use('/api/v1/init', initRoute)
 app.use('/api/v1/room', roomRoute)
+app.use('/api/v1/rating', ratingRoute)
 
 db.init((err) => {
     console.log(err.toString())

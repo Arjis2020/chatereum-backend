@@ -74,7 +74,7 @@ function init(io) {
                         participants,
                         size: io.sockets.adapter.rooms.get(room)?.size - 1
                     })
-                    if (io.sockets.adapter.rooms.get(`${room}`)?.size - 1 === 0) {
+                    if (!io.sockets.adapter.rooms.get(`${room}`)?.size || io.sockets.adapter.rooms.get(`${room}`)?.size - 1 === 0) {
                         await Rooms.destroy({
                             where: {
                                 room_code: room
@@ -88,6 +88,9 @@ function init(io) {
                     socket_id: socket.id
                 }
             })
+        })
+        socket.on('disconnect', (reason) => {
+            console.log(`Socket with id : ${socket.id} disconnected because of ${reason}`)
         })
     })
 }
