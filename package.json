@@ -5,7 +5,7 @@
   "main": "app.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "push" : "git add . && git commit -m \"%npm_config_message%\" && git push origin main"
+    "push": "git add . && git commit -m \"%npm_config_message%\" && git push origin main"
   },
   "keywords": [],
   "author": "",
@@ -17,6 +17,7 @@
     "express": "^4.17.2",
     "jsonwebtoken": "^8.5.1",
     "mysql2": "^2.3.3",
+    "nodemon": "^2.0.15",
     "randomatic": "^3.1.1",
     "sequelize": "^6.13.0",
     "socket.io": "^4.4.1",

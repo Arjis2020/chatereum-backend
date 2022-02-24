@@ -1,6 +1,6 @@
 const express = require('express')
 const router = express.Router()
-const { rooms: Rooms } = require('../models')
+const { rooms: Rooms, participants: Participants } = require('../models')
 
 router.get('/details', async (req, res) => {
     const room_code = req.query.room_code
@@ -8,6 +8,10 @@ router.get('/details', async (req, res) => {
         const room = await Rooms.findOne({
             where: {
                 room_code
+            },
+            include: {
+                model: Participants,
+                attributes: ['public_key', 'username', 'socket_id']
             }
         })
         if (room)

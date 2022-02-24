@@ -5,7 +5,7 @@ const { v4: uudiV4 } = require('uuid')
 function init(io) {
     global.io = io
     io.on('connection', (socket) => {
-        //console.log(`Socket with ${socket.id} joined`)
+        console.log(`Socket with ${socket.id} joined`)
         socket.on('join-room', async (data, callback) => {
             const { room_code, username, public_key } = data
             socket.nickname = username
@@ -103,15 +103,16 @@ function getClients(io, room_code, socket) {
 
             for await (const clientId of clients) {
                 //if (clientId !== socket.id) {
-                const { public_key } = await Participants.findOne({
+                const { public_key, username } = await Participants.findOne({
                     where: {
                         socket_id: clientId
                     },
-                    attributes: ['public_key']
+                    attributes: ['public_key', 'username']
                 })
                 sockets.push({
                     socket_id: clientId,
-                    public_key
+                    public_key,
+                    username
                 })
                 //}
             }
