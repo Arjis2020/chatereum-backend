@@ -44,4 +44,8 @@ router.post('/', async (req, res) => {
     )
 })
 
+router.get('/heat', (req, res) => {
+    res.send("Heated up")
+})
+
 module.exports = router
