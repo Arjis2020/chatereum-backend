@@ -20,6 +20,13 @@ jobs:
           node-version: ${{ matrix.node-version }}
       - run: |
           npm install
+          touch .env
+          echo JWT_SECRET = ChAtErEuM@2022*2023 >> .env
+          echo DB_NAME=chatereum >> .env
+          echo DB_USERNAME=arjis >> .env
+          echo DB_PASSWORD=chatereumSQL@2022 >> .env
+          echo DB_HOST=api.chatereum.ml >> .env
+          cat .env
           pm2 restart app
           pm2 save
           pm2 startup
